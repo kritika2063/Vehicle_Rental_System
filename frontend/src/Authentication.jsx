@@ -14,5 +14,6 @@ import appLogo from './assets/logo.png';
               </div>
             );
           };
+          
 
           export default Authentication;
