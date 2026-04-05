@@ -1,0 +1,3 @@
+import Authentication from "./components/Authentication";
+// ...existing code...
+// Use <Authentication /> where you want to show the login page.
