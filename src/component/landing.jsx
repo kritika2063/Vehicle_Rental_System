@@ -1,19 +1,25 @@
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-// import { GOOGLE_CLIENT_ID } from '../constants/globals';
+import { useNavigate } from 'react-router-dom';
+
 const GOOGLE_CLIENT_ID = '537729065202-f0287ficblsbjfgp9k5gkg0judpk2nkv.apps.googleusercontent.com';
+
 export default function Landing() {
+  const navigate = useNavigate();
+
   const handleLoginSuccess = (credentialResponse) => {
-    console.log('Login Success:', credentialResponse);
-    const decoded = jwtDecode(credentialResponse.credential);
-    console.log('Decoded JWT:', decoded);
-    
-    // TODO: Save auth token to localStorage or state management
-    // localStorage.setItem('authToken', credentialResponse.credential);
+    // Decode the Google JWT to get user info (name, email, picture)
+    const user = jwtDecode(credentialResponse.credential);
+
+    // Save user info to localStorage so we can access it across pages
+    localStorage.setItem('user', JSON.stringify(user));
+
+    // Redirect to home after login
+    navigate('/');
   };
 
   const handleLoginError = () => {
-    console.log('Login Failed');
+    alert('Login failed. Please try again.');
   };
 
   return (
@@ -22,7 +28,10 @@ export default function Landing() {
         <h1>Welcome to Mero Gadi</h1>
         <p>Sign in with your Google account to continue</p>
         <GoogleLogin
-          onSuccess={handleLoginSuccess}
+          onSuccess={(credentialResponse) => {
+            const user = jwtDecode(credentialResponse.credential);
+            console.log(user);
+          }}
           onError={handleLoginError}
         />
       </div>
