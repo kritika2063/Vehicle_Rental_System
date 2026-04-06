@@ -1,16 +1,24 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 
-const AdminLayout = () => (
-  <div>
-    <h2>Admin Panel</h2>
-    <nav style={{ padding: '8px 0' }}>
-      <Link to="vehicles" style={{ marginRight: '10px' }}>Vehicles</Link>
-      <Link to="bookings" style={{ marginRight: '10px' }}>Bookings</Link>
-      <Link to="terms">Terms</Link>
-    </nav>
-    <Outlet />
-  </div>
-);
+export default function AdminLayout() {
+  const navigate = useNavigate();
 
-export default AdminLayout;
+  function handleLogout() {
+    localStorage.removeItem('admin');
+    navigate('/admin/login');
+  }
+
+  return (
+    <div>
+      <nav style={{ padding: '12px 20px', borderBottom: '1px solid #e5e7eb', display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <span style={{ fontWeight: 700, marginRight: 'auto' }}>Admin Panel</span>
+        <Link to="/admin/vehicles">Vehicles</Link>
+        <Link to="/admin/bookings">Bookings</Link>
+        <Link to="/admin/terms">Terms</Link>
+        <button onClick={handleLogout} style={{ marginLeft: '16px', cursor: 'pointer' }}>Logout</button>
+      </nav>
+      <Outlet />
+    </div>
+  );
+}

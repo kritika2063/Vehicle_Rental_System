@@ -1,19 +1,19 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import './AdminLogin.css'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import './AdminLogin.css';
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const navigate = useNavigate()
-  const { login, loading, error, setError } = useAuth()
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const { login, loading, error, setError } = useAuth();
 
   async function handleSubmit(e) {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      await login(username, password)
-      navigate('/admin/dashboard')
+      await login(username, password);
+      navigate('/admin/bookings'); // redirect to first admin page after login
     } catch {}
   }
 
@@ -39,7 +39,7 @@ export default function AdminLogin() {
               type="text"
               placeholder="Enter your username"
               value={username}
-              onChange={(e) => { setUsername(e.target.value); setError(null) }}
+              onChange={(e) => { setUsername(e.target.value); setError(null); }}
               autoFocus
               required
             />
@@ -52,7 +52,7 @@ export default function AdminLogin() {
               type="password"
               placeholder="Enter your password"
               value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(null) }}
+              onChange={(e) => { setPassword(e.target.value); setError(null); }}
               required
             />
           </div>
@@ -71,5 +71,5 @@ export default function AdminLogin() {
         </div>
       </div>
     </div>
-  )
+  );
 }

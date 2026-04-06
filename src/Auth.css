@@ -1,53 +1,79 @@
-/* Authentication and Landing Page Styles */
-.Auth {
+/* Full page - light blue-grey background matching the design */
+.auth-page {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(145deg, #e8eef7 0%, #dde6f0 100%);
 }
 
-.landing {
+/* Centered white card */
+.auth-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  padding: 40px 48px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
   text-align: center;
-  min-width: 400px;
+  min-width: 340px;
+  gap: 4px;
 }
 
-.landing h1 {
-  margin-bottom: 20px;
-  color: #1f2937;
-  font-size: 28px;
+/* Circle icon container */
+.auth-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.auth-icon img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.auth-card h2 {
+  margin: 0 0 4px 0;
+  color: #111827;
+  font-size: 20px;
   font-weight: 700;
 }
 
-.landing p {
+.auth-card p {
   color: #6b7280;
-  margin-bottom: 30px;
+  margin: 0 0 20px 0;
   font-size: 14px;
 }
 
-.landing button,
-.landing div[role="button"] {
-  margin: 10px 0;
+@media (max-width: 480px) {
+  .auth-card {
+    min-width: unset;
+    width: 88%;
+    padding: 32px 24px;
+  }
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .landing {
-    min-width: 90%;
-    max-width: 400px;
-    padding: 30px 20px;
-  }
+.auth-error {
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  margin: 0 0 12px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
 
-  .landing h1 {
-    font-size: 24px;
-  }
+.auth-loading {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
 }

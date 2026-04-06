@@ -28,10 +28,7 @@ export default function Landing() {
         <h1>Welcome to Mero Gadi</h1>
         <p>Sign in with your Google account to continue</p>
         <GoogleLogin
-          onSuccess={(credentialResponse) => {
-            const user = jwtDecode(credentialResponse.credential);
-            console.log(user);
-          }}
+          onSuccess={handleLoginSuccess}
           onError={handleLoginError}
         />
       </div>
