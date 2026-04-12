@@ -8,7 +8,6 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Get the logged-in user from localStorage
   const user = JSON.parse(localStorage.getItem('user'));
 
   const navLinks = [
@@ -22,15 +21,18 @@ export default function Navbar() {
     navigate('/login');
   }
 
+  function closeMobile() {
+    setMobileOpen(false);
+  }
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
-          <span className="logo-icon"><Car size={20} color="#1d4ed8" /></span>
+          <span className="logo-icon"><Car size={20} /></span>
           <span className="logo-text">Mero <span style={{ color: '#1d4ed8' }}>Gadi</span></span>
         </Link>
 
-        {/* Desktop nav links - only show when logged in */}
         {user && (
           <div className="navbar-center desktop-only">
             <ul className="nav-menu">
@@ -52,19 +54,24 @@ export default function Navbar() {
           {user ? (
             <div className="navbar-user">
               <span className="user-pill">👤 {user.name}</span>
-              <button className="nav-link-button" onClick={handleLogout}>Logout</button>
+              <button className="nav-link-button" onClick={handleLogout}>
+                Logout
+              </button>
             </div>
           ) : (
             <Link to="/login" className="nav-link-button">Login</Link>
           )}
         </div>
 
-        <button className="mobile-menu-btn" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+        <button
+          className="mobile-menu-btn"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
-      {/* Mobile menu */}
       {mobileOpen && (
         <div className="mobile-menu">
           {user && navLinks.map((link) => (
@@ -72,15 +79,19 @@ export default function Navbar() {
               key={link.to}
               to={link.to}
               className={`nav-link-button${location.pathname === link.to ? ' active' : ''}`}
-              onClick={() => setMobileOpen(false)}
+              onClick={closeMobile}
             >
               {link.label}
             </Link>
           ))}
           {user ? (
-            <button className="nav-link-button" onClick={handleLogout}>Logout</button>
+            <button className="nav-link-button" onClick={handleLogout}>
+              Logout
+            </button>
           ) : (
-            <Link to="/login" className="nav-link-button" onClick={() => setMobileOpen(false)}>Login</Link>
+            <Link to="/login" className="nav-link-button" onClick={closeMobile}>
+              Login
+            </Link>
           )}
         </div>
       )}
