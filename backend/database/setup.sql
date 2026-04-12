@@ -9,6 +9,18 @@ CREATE TABLE IF NOT EXISTS admin (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS vehicles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    type ENUM('Motorcycle', 'Car', 'SUV', 'Van', 'Truck') NOT NULL,
+    fuel_type VARCHAR(50) NOT NULL DEFAULT 'Petrol',
+    seats INT NOT NULL DEFAULT 5,
+    price_per_day DECIMAL(10,2) NOT NULL,
+    image_url VARCHAR(500),
+    available TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
 
