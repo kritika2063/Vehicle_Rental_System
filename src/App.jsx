@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Authentication from './pages/Authentication';
-import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 import Vehicles from './pages/Vehicles';
 import Booking from './pages/Booking';
 import NotFound from './pages/NotFound';
@@ -61,7 +61,7 @@ export default function App() {
         <Route path="/admin" element={<Navigate to="/admin/login" />} />
 
         {/* Protected user routes - Navbar is shown inside ProtectedRoute */}
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/vehicles" element={<ProtectedRoute><Vehicles /></ProtectedRoute>} />
         <Route path="/booking" element={<ProtectedRoute><Booking /></ProtectedRoute>} />
 

@@ -11,7 +11,7 @@ export default function Navbar() {
   const user = JSON.parse(localStorage.getItem('user'));
 
   const navLinks = [
-    { to: '/', label: 'Home' },
+    { to: '/dashboard', label: 'Home' },
     { to: '/vehicles', label: 'Vehicles' },
     { to: '/booking', label: 'My Bookings' },
   ];
@@ -28,8 +28,8 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-logo">
-          <span className="logo-icon"><Car size={20} /></span>
+        <Link to="/dashboard" className="navbar-logo">
+          <img src="/logo.png" alt="Mero Gadi" style={{ width: 28, height: 28, objectFit: 'contain' }} />
           <span className="logo-text">Mero <span style={{ color: '#1d4ed8' }}>Gadi</span></span>
         </Link>
 
