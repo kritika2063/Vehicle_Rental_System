@@ -13,7 +13,7 @@ export default function AdminLogin() {
     e.preventDefault();
     try {
       await login(username, password);
-      navigate('/admin/bookings'); // redirect to first admin page after login
+      navigate('/admin/dashboard');
     } catch {}
   }
 

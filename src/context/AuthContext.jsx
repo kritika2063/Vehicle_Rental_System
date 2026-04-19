@@ -1,12 +1,10 @@
 import { createContext, useContext, useState } from 'react';
 
-// Create the context
 const AuthContext = createContext(null);
 
-// This wraps the whole app and provides auth state to every component
 export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError]     = useState(null);
 
   // Called when admin submits the login form
   async function login(username, password) {
@@ -27,7 +25,7 @@ export function AuthProvider({ children }) {
       throw new Error(data.message);
     }
 
-    // Save admin info to localStorage
+    // Save admin info to localStorage (includes id and username)
     localStorage.setItem('admin', JSON.stringify(data.admin));
   }
 
@@ -42,7 +40,22 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Custom hook so any component can just call useAuth()
 export function useAuth() {
   return useContext(AuthContext);
+}
+
+/**
+ * Helper for admin API calls — automatically adds X-Admin-Id header.
+ * Usage: adminFetch('/api/admin/dashboard.php')
+ */
+export function adminFetch(url, options = {}) {
+  const admin = JSON.parse(localStorage.getItem('admin') || '{}');
+  return fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Admin-Id': admin.id || '',
+      ...(options.headers || {}),
+    },
+  });
 }

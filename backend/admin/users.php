@@ -10,7 +10,7 @@
  * Requires: X-Admin-Id header
  */
 
-require_once __DIR__ . '/../middleware/admin_auth.php';
+require_once __DIR__ . '/admin_auth.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 

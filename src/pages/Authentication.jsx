@@ -19,8 +19,7 @@ export default function Authentication() {
     const googleUser = jwtDecode(credentialResponse.credential);
 
     try {
-      // Step 2: Send user data to our backend
-      // Backend checks if user exists → creates account or updates last_login
+      console.log('Sending to backend:', googleUser);
       const response = await fetch('/api/auth/google_login.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,6 +27,7 @@ export default function Authentication() {
       });
 
       const data = await response.json();
+      console.log('Backend response:', data);
 
       // Step 3: Only proceed if backend confirmed success
       if (!data.success) {

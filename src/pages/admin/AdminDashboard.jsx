@@ -1,23 +1,41 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { adminFetch } from '../../context/AuthContext';
 import './AdminDashboard.css';
 
-const sampleBookings = [
-  { id: '#BK-001', customer: 'Aarav Sharma', vehicle: 'Hyundai Creta', date: 'Apr 10, 2026', status: 'active' },
-  { id: '#BK-002', customer: 'Priya Thapa', vehicle: 'Toyota Hilux', date: 'Apr 12, 2026', status: 'confirmed' },
-  { id: '#BK-003', customer: 'Bikash Rai', vehicle: 'Suzuki Swift', date: 'Apr 08, 2026', status: 'completed' },
-  { id: '#BK-004', customer: 'Sita Gurung', vehicle: 'Mahindra Scorpio', date: 'Apr 13, 2026', status: 'pending' },
-  { id: '#BK-005', customer: 'Rajan KC', vehicle: 'Tata Ace', date: 'Apr 05, 2026', status: 'cancelled' },
-];
-
-const stats = {
-  vehicles: 24,
-  bookings: 58,
-  users: 134,
-  payments: 47,
+const STATUS_COLORS = {
+  pending:   { bg: '#fffbeb', color: '#b45309' },
+  confirmed: { bg: '#f0fdf4', color: '#15803d' },
+  completed: { bg: '#f1f5f9', color: '#475569' },
+  cancelled: { bg: '#fef2f2', color: '#b91c1c' },
+  active:    { bg: '#eff6ff', color: '#1d4ed8' },
 };
 
 export default function AdminDashboard() {
-  const [bookings] = useState(sampleBookings);
+  const [counts, setCounts]   = useState({ users: 0, vehicles: 0, bookings: 0 });
+  const [revenue, setRevenue] = useState(0);
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    adminFetch('/api/admin/dashboard.php')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setCounts(data.data.counts);
+          setRevenue(data.data.revenue);
+          setBookings(data.data.recent_bookings);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const statCards = [
+    { label: 'Total Vehicles', value: counts.vehicles, icon: '🚗', color: 'blue'   },
+    { label: 'Total Bookings', value: counts.bookings, icon: '📅', color: 'green'  },
+    { label: 'Total Users',    value: counts.users,    icon: '👤', color: 'purple' },
+    { label: 'Revenue (NPR)',  value: `NPR ${Number(revenue).toLocaleString()}`, icon: '💳', color: 'amber' },
+  ];
 
   return (
     <div className="admin-dashboard">
@@ -27,37 +45,15 @@ export default function AdminDashboard() {
       </div>
 
       <div className="summary-cards">
-        <div className="summary-card">
-          <div className="card-info">
-            <h3>Total Vehicles</h3>
-            <p>{stats.vehicles}</p>
+        {statCards.map((card) => (
+          <div className="summary-card" key={card.label}>
+            <div className="card-info">
+              <h3>{card.label}</h3>
+              <p>{loading ? '—' : card.value}</p>
+            </div>
+            <div className={`card-icon ${card.color}`}>{card.icon}</div>
           </div>
-          <div className="card-icon blue">🚗</div>
-        </div>
-
-        <div className="summary-card">
-          <div className="card-info">
-            <h3>Total Bookings</h3>
-            <p>{stats.bookings}</p>
-          </div>
-          <div className="card-icon green">📅</div>
-        </div>
-
-        <div className="summary-card">
-          <div className="card-info">
-            <h3>Total Users</h3>
-            <p>{stats.users}</p>
-          </div>
-          <div className="card-icon purple">👤</div>
-        </div>
-
-        <div className="summary-card">
-          <div className="card-info">
-            <h3>Total Payments</h3>
-            <p>{stats.payments}</p>
-          </div>
-          <div className="card-icon amber">💳</div>
-        </div>
+        ))}
       </div>
 
       <div className="recent-bookings">
@@ -69,27 +65,38 @@ export default function AdminDashboard() {
         <table className="bookings-table">
           <thead>
             <tr>
-              <th>Booking ID</th>
+              <th>ID</th>
               <th>Customer</th>
               <th>Vehicle</th>
-              <th>Date</th>
+              <th>Start</th>
+              <th>End</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {bookings.map((booking) => (
-              <tr key={booking.id}>
-                <td>{booking.id}</td>
-                <td>{booking.customer}</td>
-                <td>{booking.vehicle}</td>
-                <td>{booking.date}</td>
-                <td>
-                  <span className={`status-badge ${booking.status}`}>
-                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                  </span>
-                </td>
-              </tr>
-            ))}
+            {loading ? (
+              <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>Loading...</td></tr>
+            ) : bookings.length === 0 ? (
+              <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>No bookings yet</td></tr>
+            ) : (
+              bookings.map((b) => {
+                const s = STATUS_COLORS[b.status] || STATUS_COLORS.pending;
+                return (
+                  <tr key={b.id}>
+                    <td>#{b.id}</td>
+                    <td>{b.user_name}</td>
+                    <td>{b.vehicle_name}</td>
+                    <td>{b.start_date}</td>
+                    <td>{b.end_date}</td>
+                    <td>
+                      <span className="status-badge" style={{ background: s.bg, color: s.color }}>
+                        {b.status.charAt(0).toUpperCase() + b.status.slice(1)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
