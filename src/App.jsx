@@ -12,6 +12,8 @@ import AdminVehicles from './pages/admin/AdminVehicles';
 import AdminBookings from './pages/admin/AdminBookings';
 import AdminTerms from './pages/admin/AdminTerms';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AddVehicle from './pages/admin/AddVehicle';   // 👈 new
+import EditVehicle from './pages/admin/EditVehicle'; // 👈 new
 import { AuthProvider } from './context/AuthContext';
 
 function isLoggedIn() {
@@ -23,21 +25,12 @@ function isAdminLoggedIn() {
 }
 
 function ProtectedRoute({ children }) {
-  if (!isLoggedIn()) {
-    return <Navigate to="/login" />;
-  }
-  return (
-    <>
-      <Navbar />
-      {children}
-    </>
-  );
+  if (!isLoggedIn()) return <Navigate to="/login" />;
+  return <><Navbar />{children}</>;
 }
 
 function AdminRoute({ children }) {
-  if (!isAdminLoggedIn()) {
-    return <Navigate to="/admin/login" />;
-  }
+  if (!isAdminLoggedIn()) return <Navigate to="/admin/login" />;
   return children;
 }
 
@@ -50,10 +43,12 @@ export default function App() {
         <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="/admin" element={<Navigate to="/admin/login" />} />
 
-        {/* Protected user routes - Navbar is shown inside ProtectedRoute */}
+        {/* User routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-        <Route path="/vehicles" element={<ProtectedRoute><Vehicles /></ProtectedRoute>} />
-        <Route path="/booking" element={<ProtectedRoute><Booking /></ProtectedRoute>} />
+        <Route path="/vehicles"  element={<ProtectedRoute><Vehicles /></ProtectedRoute>} />
+        <Route path="/booking"   element={<ProtectedRoute><Booking /></ProtectedRoute>} />
+
+        {/* Admin routes */}
         <Route path="/admin/dashboard" element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route index element={<AdminDashboard />} />
         </Route>
@@ -66,6 +61,15 @@ export default function App() {
         <Route path="/admin/terms" element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route index element={<AdminTerms />} />
         </Route>
+
+        {/* 👇 2 new routes for Add and Edit vehicle */}
+        <Route path="/admin/vehicles/add" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+          <Route index element={<AddVehicle />} />
+        </Route>
+        <Route path="/admin/vehicles/edit/:id" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+          <Route index element={<EditVehicle />} />
+        </Route>
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
