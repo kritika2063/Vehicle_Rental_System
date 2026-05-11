@@ -1,0 +1,130 @@
+.dashboard-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  text-align: left;
+}
+
+/* Welcome banner */
+.dashboard-welcome {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  margin-bottom: 28px;
+  border: 1px solid #f0f0f0;
+}
+
+.welcome-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.welcome-text h2 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.welcome-text p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 700px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Quick actions */
+.quick-actions h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 16px;
+}
+
+.action-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 560px) {
+  .action-cards { grid-template-columns: 1fr; }
+  .dashboard-welcome { flex-direction: column; text-align: center; }
+}
+
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+}
+
+.action-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.action-card strong {
+  display: block;
+  font-size: 15px;
+  color: #111827;
+  margin-bottom: 3px;
+}
+
+.action-card p {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}

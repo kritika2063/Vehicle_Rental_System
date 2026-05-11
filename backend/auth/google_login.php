@@ -1,67 +1,72 @@
 <?php
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 
 require_once __DIR__ . '/../config/db.php';
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    die(json_encode(["success" => false, "message" => "Method not allowed"]));
-}
+require_once __DIR__ . '/otp_helper.php';
 
 $body = json_decode(file_get_contents("php://input"), true);
+if (!$body) { http_response_code(400); die(json_encode(["success" => false, "message" => "Invalid JSON"])); }
 
-// Fields come from jwtDecode() on the frontend
-$google_id      = trim($body['sub']          ?? '');
-$email          = trim($body['email']        ?? '');
-$username       = trim($body['name']         ?? '');
-$given_name     = trim($body['given_name']   ?? '');
-$family_name    = trim($body['family_name']  ?? '');
-$picture        = trim($body['picture']      ?? '');
-$email_verified = !empty($body['email_verified']) ? 1 : 0;
+$google_id   = trim($body['sub']         ?? '');
+$email       = trim($body['email']       ?? '');
+$given_name  = trim($body['given_name']  ?? '');
+$family_name = trim($body['family_name'] ?? '');
+$picture     = trim($body['picture']     ?? '');
 
 if (empty($google_id) || empty($email)) {
     http_response_code(400);
-    die(json_encode(["success" => false, "message" => "Invalid user data"]));
+    die(json_encode(["success" => false, "message" => "Invalid Google token"]));
 }
 
-// Check if this user has logged in before
-$stmt = $pdo->prepare("SELECT * FROM users WHERE google_id = ?");
-$stmt->execute([$google_id]);
-$existing_user = $stmt->fetch();
+try {
+    // Check if user already exists (by google_id or email)
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE google_id = ? OR email = ? LIMIT 1");
+    $stmt->execute([$google_id, $email]);
+    $user = $stmt->fetch();
 
-if ($existing_user) {
-    // Returning user — update their last_login and picture (may have changed)
-    $pdo->prepare("
-        UPDATE users SET last_login = CURRENT_TIMESTAMP, picture = ?
-        WHERE google_id = ?
-    ")->execute([$picture, $google_id]);
+    if ($user) {
+        // ── Returning user ── update picture, link google_id if missing
+        $pdo->prepare("
+            UPDATE users SET last_login = CURRENT_TIMESTAMP, picture = COALESCE(picture, ?),
+            google_id = COALESCE(google_id, ?)
+            WHERE email = ?
+        ")->execute([$picture, $google_id, $email]);
 
-    $is_new_user = false;
-    $message = "Welcome back, " . $existing_user['given_name'] . "!";
-} else {
-    // New user — create their account
-    $pdo->prepare("
-        INSERT INTO users (google_id, email, username, given_name, family_name, picture, email_verified)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ")->execute([$google_id, $email, $username, $given_name, $family_name, $picture, $email_verified]);
+        // Send OTP for sign-in
+        $result = sendOtp($pdo, $email, $user['given_name']);
+        if (!$result['success']) {
+            http_response_code(429);
+            die(json_encode($result));
+        }
 
-    $is_new_user = true;
-    $message = "Account created. Welcome, " . $given_name . "!";
+        echo json_encode([
+            "success"      => true,
+            "is_new_user"  => false,
+            "has_password" => !empty($user['password']),
+            "email"        => $email,
+            "given_name"   => $user['given_name'],
+            "message"      => $result['message'],
+        ]);
+
+    } else {
+        // ── New user ── tell frontend to go to sign-up form (pre-filled)
+        echo json_encode([
+            "success"     => true,
+            "is_new_user" => true,
+            "email"       => $email,
+            "given_name"  => $given_name,
+            "family_name" => $family_name,
+            "picture"     => $picture,
+            "google_id"   => $google_id,
+            "message"     => "Please complete your profile to continue",
+        ]);
+    }
+
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(["success" => false, "message" => "Server error: " . $e->getMessage()]);
 }
-
-// Send back the user data so the frontend can store it
-echo json_encode([
-    "success"     => true,
-    "is_new_user" => $is_new_user,
-    "message"     => $message,
-    "user" => [
-        "google_id"  => $google_id,
-        "email"      => $email,
-        "username"   => $username,
-        "given_name" => $given_name,
-        "picture"    => $picture,
-    ]
-]);

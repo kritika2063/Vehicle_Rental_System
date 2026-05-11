@@ -1,36 +1,32 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Car, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import './Navbar.css';
 
 export default function Navbar() {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const location  = useLocation();
+  const navigate  = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Get the logged-in user from localStorage
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
 
   const navLinks = [
-    { to: '/', label: 'Home' },
-    { to: '/vehicles', label: 'Vehicles' },
-    { to: '/booking', label: 'My Bookings' },
+    { to: '/dashboard',   label: 'Home' },
+    { to: '/vehicles',    label: 'Vehicles' },
+    { to: '/my-bookings', label: 'My Bookings' },
   ];
-
-  function handleLogout() {
-    localStorage.removeItem('user');
-    navigate('/login');
-  }
 
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-logo">
-          <span className="logo-icon"><Car size={20} color="#1d4ed8" /></span>
-          <span className="logo-text">Mero <span style={{ color: '#1d4ed8' }}>Gadi</span></span>
+
+        {/* Logo */}
+        <Link to="/dashboard" className="navbar-logo">
+          <img src="/logo.png" alt="Mero Gadi" style={{ width:28, height:28, objectFit:'contain' }} />
+          <span className="logo-text">Mero <span style={{ color:'#1d4ed8' }}>Gadi</span></span>
         </Link>
 
-        {/* Desktop nav links - only show when logged in */}
+        {/* Desktop nav links */}
         {user && (
           <div className="navbar-center desktop-only">
             <ul className="nav-menu">
@@ -48,19 +44,44 @@ export default function Navbar() {
           </div>
         )}
 
+        {/* Right side — avatar or login */}
         <div className="navbar-right desktop-only">
           {user ? (
-            <div className="navbar-user">
-              <span className="user-pill">👤 {user.name}</span>
-              <button className="nav-link-button" onClick={handleLogout}>Logout</button>
-            </div>
+            <button
+              className="nav-avatar-btn"
+              onClick={() => navigate('/profile')}
+              title="View profile"
+            >
+              {user.picture ? (
+                <img
+                  src={user.picture}
+                  alt={user.name}
+                  className="nav-avatar-img"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <img
+                  src="/default-avatar.svg"
+                  alt="Profile"
+                  className="nav-avatar-img"
+                />
+              )}
+              <span className="nav-avatar-name">
+                {user.given_name || user.username}
+              </span>
+            </button>
           ) : (
             <Link to="/login" className="nav-link-button">Login</Link>
           )}
         </div>
 
-        <button className="mobile-menu-btn" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+        {/* Mobile hamburger */}
+        <button
+          className="mobile-menu-btn"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
@@ -78,9 +99,17 @@ export default function Navbar() {
             </Link>
           ))}
           {user ? (
-            <button className="nav-link-button" onClick={handleLogout}>Logout</button>
+            <Link
+              to="/profile"
+              className="nav-link-button"
+              onClick={() => setMobileOpen(false)}
+            >
+              👤 My Profile
+            </Link>
           ) : (
-            <Link to="/login" className="nav-link-button" onClick={() => setMobileOpen(false)}>Login</Link>
+            <Link to="/login" className="nav-link-button" onClick={() => setMobileOpen(false)}>
+              Login
+            </Link>
           )}
         </div>
       )}
