@@ -1,37 +1,77 @@
 // src/services/vehicleService.js
-// Uses fetch + Vite proxy (/api → localhost:8000)
-// Matches backend/admin/vehicles.php and backend/vehicles/get_vehicles.php
+// SCRUM-88 update: update() now accepts FormData directly from VehicleForm
+// (VehicleForm builds the FormData itself including replace_file[]/replace_index[])
 
-import { adminFetch } from '../context/AuthContext';
+import axios from "axios";
 
-// GET all available vehicles (public)
+const BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost/Vehicle_Rental_System/backend";
+
+const api = axios.create({
+  baseURL: BASE,
+  withCredentials: true,
+});
+
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) window.location.href = "/login";
+    return Promise.reject(err);
+  }
+);
+
+// GET all vehicles
 export async function getAll() {
-  const res  = await fetch('/api/vehicles/get_vehicles.php');
-  const data = await res.json();
-  return data.vehicles ?? [];
+  const { data } = await api.get("/vehicles/get_vehicles.php");
+  return data.vehicles ?? data;
 }
 
-// GET single vehicle by id (admin)
+// GET single vehicle by id
 export async function getById(id) {
-  const res  = await adminFetch(`/api/admin/vehicles.php?id=${id}`);
-  const data = await res.json();
-  return data.data ?? null;
+  const { data } = await api.get(`/admin/vehicles.php?id=${id}`);
+  return data.vehicle ?? data;
 }
 
-// POST — create new vehicle (admin)
+// POST — create new vehicle
+// formData is a plain object; we build FormData here
 export async function create(formData) {
-  const res  = await adminFetch('/api/admin/vehicles.php', {
-    method: 'POST',
-    body: JSON.stringify(formData),
-  });
-  return res.json();
+  // If VehicleForm passes a FormData directly, send it as-is
+  if (formData instanceof FormData) {
+    const { data } = await api.post("/admin/vehicles.php", formData);
+    return data;
+  }
+  // Legacy plain-object path
+  const fd = buildFormData(formData);
+  const { data } = await api.post("/admin/vehicles.php", fd);
+  return data;
 }
 
-// PUT — update existing vehicle (admin)
+// POST + _method=PUT — update existing vehicle
+// VehicleForm now passes a FormData directly (includes replace_file/replace_index)
 export async function update(id, formData) {
-  const res  = await adminFetch('/api/admin/vehicles.php', {
-    method: 'PUT',
-    body: JSON.stringify({ id, ...formData }),
+  // formData is already a FormData built by VehicleForm
+  formData.append("_method", "PUT");
+  formData.append("id", id);
+  const { data } = await api.post("/admin/vehicles.php", formData);
+  return data;
+}
+
+// DELETE vehicle
+export async function remove(id) {
+  const { data } = await api.delete(`/admin/vehicles.php?id=${id}`);
+  return data;
+}
+
+// ── Helper for legacy plain-object calls ──────────────────────
+function buildFormData(obj) {
+  const fd = new FormData();
+  Object.entries(obj).forEach(([key, val]) => {
+    if (key === "images") {
+      (val || []).forEach((file) => fd.append("images[]", file));
+    } else if (key === "features" || key === "existing_images") {
+      fd.append(key, JSON.stringify(val || []));
+    } else if (val !== null && val !== undefined) {
+      fd.append(key, val);
+    }
   });
-  return res.json();
+  return fd;
 }
